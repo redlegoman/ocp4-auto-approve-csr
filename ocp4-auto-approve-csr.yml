@@ -9,11 +9,11 @@ data:
     oc login --token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token) https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT --insecure-skip-tls-verify
     if $(oc get csr --no-headers | grep Pending > /dev/null 2>&1); then
         #Approve kube-apiserver-client-kubelet
-        oc get csr --no-headers | awk '{ if ($5 ~ "Pending") system ("oc adm certificate approve " $1)}'
+        oc get csr --no-headers | awk '{ if ($6 ~ "Pending") system ("oc adm certificate approve " $1)}'
         #Wait 5 seconds for second certificate
         sleep 30
         #Approve kubelet-serving certificate
-        oc get csr --no-headers | awk '{ if ($5 ~ "Pending") system ("oc adm certificate approve " $1)}'
+        oc get csr --no-headers | awk '{ if ($6 ~ "Pending") system ("oc adm certificate approve " $1)}'
     else
         echo "No CSRs found, nothing to do!"
     fi
@@ -37,7 +37,7 @@ spec:
               name: ocp4-auto-approve-csr-script
           containers:
             - name: csr-autoprove
-              image: quay.io/openshift/origin-cli:4.7
+              image: mirror-registry:8443/ocp4/openshift4:4.11.9-x86_64-cli
               volumeMounts:
                 - name: script
                   mountPath: /usr/autoprove-csr
